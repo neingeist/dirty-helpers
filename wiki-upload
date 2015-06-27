@@ -2,6 +2,7 @@
 # Upload a file to a recent MediaWiki using the API.
 
 use strict;
+use IO::File;
 use MediaWiki::API 0.39;
 
 use constant API_URL => 'https://entropia.de/wiki/api.php';
@@ -18,19 +19,18 @@ if (!defined($comment)) {
 }
 
 # log in to the wiki
-my $mw = MediaWiki::API->new();
-$mw->{config}->{api_url} = API_URL;
+my $mw = MediaWiki::API->new({api_url => API_URL});
 $mw->login( { lgname => $wikiuser, lgpassword => $wikipass } )
   || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
 
 # upload file
-open FILE, $file or die $!;
-binmode FILE;
+my $fh = IO::File->new($file, 'r');
+$fh->binmode();
 my ($buffer, $data);
-while ( read(FILE, $buffer, 65536) )  {
+while ( read($fh, $buffer, 65536) )  {
   $data .= $buffer;
 }
-close(FILE);
+close($fh);
 
 $mw->upload( { title => $file,
                summary => $comment,
