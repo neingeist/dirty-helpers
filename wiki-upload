@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+# Upload a file to a recent MediaWiki using the API.
+
+use strict;
+use MediaWiki::API 0.39;
+
+use constant API_URL => 'https://entropia.de/wiki/api.php';
+
+my $wikiuser = $ARGV[0];
+my $wikipass = $ARGV[1];
+my $file     = $ARGV[2];
+my $comment  = $ARGV[3];
+
+# usage
+if (!defined($comment)) {
+  print "Usage: $0 <wikiuser> <wikipass> <file> <comment>\n";
+  exit;
+}
+
+# log in to the wiki
+my $mw = MediaWiki::API->new();
+$mw->{config}->{api_url} = API_URL;
+$mw->login( { lgname => $wikiuser, lgpassword => $wikipass } )
+  || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
+
+# upload file
+open FILE, $file or die $!;
+binmode FILE;
+my ($buffer, $data);
+while ( read(FILE, $buffer, 65536) )  {
+  $data .= $buffer;
+}
+close(FILE);
+
+$mw->upload( { title => $file,
+               summary => $comment,
+               data => $data } ) || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
