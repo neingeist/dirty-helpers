@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+"""
+find all git repositories (and git working directories) starting from the
+current directory and perform a 'git fsck' on them.
+"""
+
+from __future__ import division, print_function
+
+from colorama import Fore
+
+import contextlib
+import os
+import subprocess
+
+
+def git_directories(startdir):
+    for dirpath, dirnames, _ in os.walk(startdir):
+        if set(['info', 'objects', 'refs']).issubset(set(dirnames)):
+            yield dirpath
+
+
+@contextlib.contextmanager
+def working_directory(directory):
+    saved_cwd = os.getcwd()
+    os.chdir(directory)
+    yield
+    os.chdir(saved_cwd)
+
+
+for git_directory in git_directories('.'):
+    with working_directory(git_directory):
+        print('\n{}:'.format(os.getcwd()))
+        ret = subprocess.call(['git', 'fsck'])
+        if ret != 0:
+            print((Fore.RED + 'git fsck is unhappy with {}' + Fore.RESET)
+                  .format(git_directory))
