@@ -1,37 +1,62 @@
-#!/usr/bin/perl
+#!/usr/bin/env python
 # Upload a file to a recent MediaWiki using the API.
+#
+# The configuration file ~/.config/wiki-upload.yaml must contain Wiki site
+# information and credentials. For example:
+#
+#    ---
+#    site: awesomewiki.com
+#    https: yes
+#    site_opts:
+#      path: /wiki/
+#    username: UploadBoat
+#    password: VeRySeCuR3
+#
 
-use strict;
-use IO::File;
-use MediaWiki::API 0.39;
+from __future__ import division, print_function
+import argparse
+import mwclient
+import os.path
+import termcolor
+import yaml
 
-use constant API_URL => 'https://entropia.de/wiki/api.php';
 
-my $wikiuser = $ARGV[0];
-my $wikipass = $ARGV[1];
-my $file     = $ARGV[2];
-my $comment  = $ARGV[3];
+def login():
+    config = yaml.load(open(os.path.expanduser('~/.config/wiki-upload.yaml')))
 
-# usage
-if (!defined($comment)) {
-  print "Usage: $0 <wikiuser> <wikipass> <file> <comment>\n";
-  exit;
-}
+    mw_site = ('https', config['site']) if config['https'] else config['site']
+    mw_site_opts = config['site_opts'] if 'site_opts' in config else {}
+    mw_site_opts['clients_useragent'] = 'wiki-upload'
 
-# log in to the wiki
-my $mw = MediaWiki::API->new({api_url => API_URL});
-$mw->login( { lgname => $wikiuser, lgpassword => $wikipass } )
-  || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
+    site = mwclient.Site(mw_site, **mw_site_opts)
+    site.login(config['username'], config['password'])
 
-# upload file
-my $fh = IO::File->new($file, 'r');
-$fh->binmode();
-my ($buffer, $data);
-while ( read($fh, $buffer, 65536) )  {
-  $data .= $buffer;
-}
-close($fh);
+    return site
 
-$mw->upload( { title => $file,
-               summary => $comment,
-               data => $data } ) || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Upload a file to a recent MediaWiki using the API.')
+    parser.add_argument('images', metavar='image.jpg', nargs='+',
+                        help='an image to upload')
+    parser.add_argument('-d', '--description', required=True,
+                        help='description of the images')
+    args = parser.parse_args()
+
+    return args
+
+
+def main():
+    site = login()
+
+    args = parse_args()
+    for image in args.images:
+        destination_name = os.path.basename(image)
+
+        print('Uploading {} ... '.format(destination_name), end='')
+        ret = site.upload(open(image), destination_name, args.description)
+
+        color = 'green' if ret['result'] == 'Success' else 'yellow'
+        print(termcolor.colored(ret['result'], color))
+
+main()
