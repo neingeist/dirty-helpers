@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# Find junk in my home directory
+
+from __future__ import division, print_function
+
+from colorama import Fore
+import os
+import os.path
+import sys
+
+M = 1024*1024
+
+
+def junk_dirs():
+    """Return directories which potentially contain junk"""
+
+    for d in ['~/tmp', '~/.local/share/Trash', '~/rpmbuild', '~/RPM']:
+        d = os.path.expanduser(d)
+        if os.path.exists(d):
+            yield d
+    for d, _, _ in os.walk(os.path.expanduser('~')):
+        if d.endswith('.sync/Archive'):
+            yield d
+
+
+def du(path):
+    """Return disk usage of the given directory"""
+
+    def get_blocks(path):
+        stat = os.stat(path)
+        return (stat.st_ino, stat.st_blocks)
+
+    dd = {}
+    ino, blocks = get_blocks(path)
+    dd[ino] = blocks
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in dirnames + filenames:
+            path = os.path.join(dirpath, filename)
+            if os.path.exists(path):
+                ino, blocks = get_blocks(path)
+                dd[ino] = blocks
+
+    return 512 * sum(dd.values())
+
+
+def main():
+    for d in junk_dirs():
+        if os.path.isdir(d):
+            du_d = du(d)
+
+            if du_d < 5*M:
+                continue
+
+            if du_d > 100*M:
+                fore = Fore.RED
+            elif du_d > 50*M:
+                fore = Fore.YELLOW
+            else:
+                fore = Fore.RESET
+
+            print(fore + str(du_d//M) + 'M\t' + d + Fore.RESET)
+
+
+main()
