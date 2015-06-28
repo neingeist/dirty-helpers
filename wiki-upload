@@ -53,10 +53,14 @@ def main():
     for image in args.images:
         destination_name = os.path.basename(image)
 
-        print('Uploading {} ... '.format(destination_name), end='')
+        print('Uploading {} ... '.format(destination_name))
         ret = site.upload(open(image), destination_name, args.description)
 
         color = 'green' if ret['result'] == 'Success' else 'yellow'
-        print(termcolor.colored(ret['result'], color))
+        print(termcolor.colored('  {}'.format(ret['result']), color))
+        if 'warnings' in ret:
+            for warning, what in ret['warnings'].items():
+                print(termcolor.colored('  {}: {}'.format(warning, what),
+                                        'yellow'))
 
 main()
