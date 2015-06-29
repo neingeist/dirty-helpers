@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+"""
+List maildirs in your Maildir++ with message counts.
+"""
+from __future__ import division, print_function
+
+import os
+import os.path
+import re
+
+
+def maildirs(startdir):
+    for dirpath, dirnames, _ in os.walk(startdir):
+        if set(['cur', 'new', 'tmp']).issubset(set(dirnames)):
+            yield dirpath
+
+
+def maildir_count(maildir):
+
+    def dir_count(dir_):
+        return len(os.listdir(dir_))
+
+    cur = dir_count(os.path.join(maildir, 'cur'))
+    new = dir_count(os.path.join(maildir, 'new'))
+    all_ = cur + new
+
+    return (new, all_)
+
+
+def mailbox_name(maildir, root):
+    name = re.sub(root + r'/?\.?', '', maildir)
+    if name == '':
+        return 'INBOX'
+    else:
+        return name
+
+
+ignore_zero = True
+ignore = [r'spam']
+
+
+root = os.path.expanduser('~/Maildir')
+counts = {}
+for maildir in maildirs(root):
+    name = mailbox_name(maildir, root)
+    _, all_ = maildir_count(maildir)
+
+    if all_ == 0 and ignore_zero:
+        continue
+
+    if any(re.match(i, name) for i in ignore):
+        continue
+
+    counts[name] = all_
+
+for name in sorted(counts.keys()):
+    print('{:30} {:5d}'.format(name, counts[name]))
