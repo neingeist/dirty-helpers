@@ -1,0 +1,23 @@
+#!/bin/sh
+# sync gpg public keys between localhost and the specified hosts
+#
+#   gpg-sync-keys host1 [host2 ...]
+#
+
+#GPG="gpg -q --batch"
+GPG=gpg
+
+hosts=$@
+
+for host in $hosts; do
+  echo "Importing from $host ..."
+  ssh -C $host $GPG --export | $GPG --import
+done
+
+#echo "Refreshing keys ..."
+#$GPG --refresh-keys
+
+for host in $hosts; do
+  echo "Exporting to $host ..."
+  $GPG --export | ssh -C $host $GPG --import
+done
