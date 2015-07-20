@@ -1,0 +1,17 @@
+#!/bin/bash
+# suggest a random time for a cronjob
+
+set -u
+set -e
+
+hour=$((($RANDOM*24)/32768))
+minute=$((($RANDOM*60)/32768))
+dow="*"
+
+if [ $# -gt 0 ]; then
+  if [ "$1" == "-w" ]; then
+    dow=$((($RANDOM*7)/32768))
+  fi
+fi
+
+printf "%02i %02i * * %s\n" "$minute" "$hour" "$dow"

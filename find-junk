@@ -14,7 +14,8 @@ M = 1024*1024
 def junk_dirs():
     """Return directories which potentially contain junk"""
 
-    for d in ['~/tmp', '~/.local/share/Trash', '~/rpmbuild', '~/RPM']:
+    for d in ['~/tmp', '~/.local/share/Trash', '~/rpmbuild', '~/RPM',
+              '~/.cache/tracker']:
         d = os.path.expanduser(d)
         if os.path.exists(d):
             yield d
