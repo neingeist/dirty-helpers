@@ -61,5 +61,7 @@ else:
     key = lambda i: i[0]
     reverse = False
 
+length_name  = max(len(name) for name in counts.keys())
+length_count = max(len(str(count)) for count in counts.values())
 for name, count in sorted(counts.items(), key=key, reverse=reverse):
-    print('{:30} {:5d}'.format(name, count))
+    print('{0:{1}}\t{2:{3}d}'.format(name, length_name, count, length_count))
