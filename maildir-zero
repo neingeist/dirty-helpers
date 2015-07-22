@@ -37,6 +37,7 @@ def mailbox_name(maildir, root):
 
 ignore_zero = True
 ignore = [r'spam']
+sort_by_count = True
 
 
 root = os.path.expanduser('~/Maildir')
@@ -53,5 +54,14 @@ for maildir in maildirs(root):
 
     counts[name] = all_
 
-for name in sorted(counts.keys()):
-    print('{:30} {:5d}'.format(name, counts[name]))
+if sort_by_count:
+    key = lambda i: i[1]
+    reverse = True
+else:
+    key = lambda i: i[0]
+    reverse = False
+
+length_name  = max(len(name) for name in counts.keys())
+length_count = max(len(str(count)) for count in counts.values())
+for name, count in sorted(counts.items(), key=key, reverse=reverse):
+    print('{0:{1}}\t{2:{3}d}'.format(name, length_name, count, length_count))
