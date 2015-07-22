@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+# Generates an RSS feed for the Heroes graphic novels (for use with Liferea etc.)
+use strict;
+use LWP::Simple;
+use XML::RSS;
+use DateTime;
+use DateTime::Format::W3CDTF;
+
+my $MAXCOUNT = 10;
+
+my $f = DateTime::Format::W3CDTF->new();
+my $rss = XML::RSS->new(version => '1.0');
+$rss->channel(
+  title        => "Heroes Graphic Novels",
+  link         => "http://www.nbc.com/Heroes/novels",
+  description  => "",
+);
+
+my ($novelNum, $novelPrint, $novelTitle, $novelImg, $novelText, $novelDate);
+my $i = 0;
+
+$_ = get("http://www.nbc.com/Heroes/js/novels.js");
+while (/^(.*)$/gm) {
+  my $line = $1;
+
+  if ($line =~ /case\s+(\d+)\s*:/) {
+    if (defined($novelNum)) {
+      $rss->add_item(
+        title       => "$novelNum - $novelTitle",
+        link        => $novelPrint,
+        description => "<a href=\"$novelPrint\"><img src=\"$novelImg\" /></a><br/>$novelNum - $novelTitle<br/>$novelText",
+        dc          => { date => $novelDate },
+      );
+      last if (++$i >= $MAXCOUNT);
+    }
+
+    $novelNum = $1;
+  }
+
+  #case 2 :
+  #        novelImg = "/Heroes/images/novels/novel_002_lg.jpg";
+  #        novelTitle = "THE CRANE";
+  #        novelText = "To save the world it takes conviction, dedication, and a real Hiro.";
+  #        novelPrint = "/Heroes/novels/downloads/Heroes_novel_002.pdf";
+  #        novelEgg = "http://www.nbc.com/Heroes/novels/downloads/nathan_line_01.jpg";
+  #        libraryImg = "/Heroes/images/novels/novel_002_sm.jpg";
+  #        wikiLink = "http://heroeswiki.com/Graphic_Novel:The_Crane";
+
+  if ($line =~ /novelPrint\s*=\s*"(.*)"/) {
+    $novelPrint = "http://www.nbc.com$1";
+
+    my (undef, undef, $modified_time, undef, undef) = head($novelPrint);
+    if (defined($modified_time)) {
+      $novelDate = $f->format_datetime(DateTime->from_epoch(epoch => $modified_time));
+    } else {
+      $novelDate = undef;
+    }
+  }  
+  if ($line =~ /novelImg\s*=\s*"(.*)"/) {
+    $novelImg = "http://www.nbc.com$1";
+  }  
+  if ($line =~ /novelTitle\s*=\s*"(.*)"/) {
+    $novelTitle = $1;
+  }  
+  if ($line =~ /novelText\s*=\s*"(.*)"/) {
+    $novelText = $1;
+  }  
+} 
+       
+print $rss->as_string;
