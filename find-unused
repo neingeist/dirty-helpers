@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+# Find
+# unused
+# directories
+# by
+# looking
+# at
+# the
+# atimes
+# of
+# the
+# contained
+# files.
+#
+require 'optparse'
+
+options = {}
+options[:days] = 180
+
+def used_recently?(path, days)
+  if File.directory?(path)
+    used_recently = false
+    empty = true
+    Dir.new(path).each do |entry|
+      if entry != "." && entry != ".."
+        empty = false
+        if used_recently?("#{path}/#{entry}", days)
+          used_recently = true
+        end
+      end
+    end
+    if !used_recently && !empty
+      puts "unused: #{path}"
+    end
+    return used_recently
+  elsif File.file?(path) || File.socket?(path) || File.symlink?(path)
+    return (File.lstat(path).atime >= Time.now() - (days * 24 * 3600))
+  else
+    puts "Unknown file type: #{path}"
+    exit 1
+  end
+end
+
+# Parse options
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options] DIRECTORY..."
+  
+  opts.separator ""
+  opts.separator "Find unused (sub-)directories, recursively traversing DIRECTORY, by looking at the atime(s) of all contained files. A directory is considered unused if ALL of the contained files weren't accessed for DAYS days (default is 180 days.)"
+  opts.separator ""
+  
+  opts.on("-d", "--days DAYS", Integer,
+          "Days after a file is considered unused") do |d|
+    options[:days] = d
+  end
+end.parse!
+
+dirs = ARGV
+if dirs.length == 0
+  dirs = "."
+end
+
+dirs.each do |dir|
+  used_recently?(dir, options[:days])
+end

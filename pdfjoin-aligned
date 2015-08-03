@@ -1,0 +1,26 @@
+#!/bin/bash
+# join pdfs and insert an empty (one-page) pdf for pdfs with an odd page number
+
+# create an empty (one-page) pdf
+emptypdf="$(mktemp -u /tmp/pdfjoin-aligned-XXXXXX).pdf"
+echo -ne "0 0 moveto\n() show\n" | ps2pdf - "$emptypdf"
+
+# go through pdfs
+declare -a pdfs
+for pdf in "$@"; do
+  pdfs+=("$pdf")
+ 
+  # is it odd or not? 
+  pages=$(pdfinfo "$pdf" | awk '{ if (/^Pages:/) { print $2 } }')
+  odd=$(($pages % 2))
+  if [ "$odd" = "1" ]; then
+    pdfs+=("$emptypdf")
+  fi
+done
+
+# join!
+out="$(mktemp -u /tmp/joined-XXXXXX).pdf"
+pdfjoin --outfile "$out" "${pdfs[@]}"
+
+# cleanup
+rm -f "$emptypdf"
