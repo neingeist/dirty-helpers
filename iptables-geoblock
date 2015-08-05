@@ -1,0 +1,30 @@
+#!/bin/sh
+# Block SSH connections from CN etc.
+#
+# This downloads a list of IP addresses from some website via unencrypted HTTP and then
+# blocks this list of IP addresses without filtering. You should probably not use this
+# script.
+
+set -e
+
+ports="ssh,websm" # comma-separated for iptables -m multiport
+countries="cn hk" # space-separated
+
+for country in $countries; do
+	ipset -q -N geoblock-$country hash:net || true
+
+	tmp_zone=`mktemp`
+	curl -s -o $tmp_zone http://www.ipdeny.com/ipblocks/data/aggregated/$country-aggregated.zone
+
+	for ip in $(cat $tmp_zone); do 
+		ipset -A geoblock-$country "$ip" -exist
+	done
+
+	rm -f $tmp_zone
+
+	rule_spec="-p tcp -m multiport --dports $ports \
+		   -m set --match-set geoblock-$country src -j REJECT"
+	if ! iptables -C INPUT $rule_spec; then
+		iptables -I INPUT $rule_spec
+	fi
+done
