@@ -1,0 +1,25 @@
+#!/usr/bin/python
+"""Print fetchmail errors in journal since yesterday, if more than MINCOUNT"""
+
+import datetime
+import systemd.journal as journal
+
+
+yesterday = datetime.datetime.today() - datetime.timedelta(1)
+SINCE = yesterday
+MINCOUNT = 5
+
+
+j = journal.Reader()
+j.log_level(journal.LOG_ERR)  # or more severe
+j.add_match(_COMM="fetchmail")
+
+
+entries = [entry for entry in j
+           # j.seek_realtime() does not work as expected, so filtering here:
+           if entry['_SOURCE_REALTIME_TIMESTAMP'] >= SINCE]
+
+if len(entries) >= MINCOUNT:
+    for entry in entries:
+        print(entry['_SOURCE_REALTIME_TIMESTAMP'])
+        print(entry['MESSAGE'])
