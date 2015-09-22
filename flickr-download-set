@@ -1,0 +1,8 @@
+#!/bin/sh
+seturl=$1
+lynx -dump $seturl | perl -ne 'print "http://flickr.com/photo_zoom.gne?id=$1&size=l\n" if m#([0-9]+)/in/set-#' \
+| while read url; do 
+  lynx -source "$url" | grep "static.*flickr.com" \
+  | perl -ne 'print "$1\n" if m#a href="(.*?\.jpg)"#' \
+  | xargs wget -c; 
+done

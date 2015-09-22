@@ -1,0 +1,36 @@
+#!/usr/bin/perl 
+# rss-feed für ruthe.de (liferea feed source "command")
+
+use strict;
+use LWP::Simple;
+use XML::RSS;
+use DateTime;
+use DateTime::Format::W3CDTF;
+
+my $f = DateTime::Format::W3CDTF->new();
+my $rss = XML::RSS->new(version => '1.0');
+$rss->channel(
+  title        => "Ruthe.de",
+  link         => "http://www.ruthe.de",
+  description  => "Cartoons",
+);
+
+$_ = get("http://ruthe.de/frontend/archiv.php");
+while (m#<a href="index.php\?pic=([0-9]+)&sort=datum&order=DESC"><img src="cartoons/tn_strip_([0-9]+).jpg"#sg) {
+  my ($id, $picid) = ($1, $2);
+
+  my $picurl = "http://ruthe.de/frontend/cartoons/strip_$picid.jpg";
+  my $pagurl = "http://ruthe.de/frontend/index.php?pic=$id&sort=datum&order=DESC";
+
+  my (undef, undef, $modified_time, undef, undef) = head($picurl);
+  my $date = $f->format_datetime(DateTime->from_epoch(epoch => $modified_time));
+
+  $rss->add_item(
+    title       => "Comic Nr. $picid",
+    link        => $pagurl,
+    description => "<a href=\"$pagurl\"> <img src=\"$picurl\" /> </a>",
+    dc          => { date => $date }, 
+  );
+}
+
+print $rss->as_string;
