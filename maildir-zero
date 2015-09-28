@@ -41,9 +41,9 @@ try:
     config = yaml.load(open(os.path.expanduser(config_filename)))
 except:
     pass
-ignore_zero = config.setdefault('ignore_zero', True)
-ignore = config.setdefault('ignore', [r'spam'])
-sort_by_count = config.setdefault('sort_by_count', True)
+ignore_zero = config.get('ignore_zero', True)
+ignore = config.get('ignore', [r'spam'])
+sort_by_count = config.get('sort_by_count', True)
 
 
 root = os.path.expanduser('~/Maildir')
