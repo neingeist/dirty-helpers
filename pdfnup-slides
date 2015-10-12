@@ -1,34 +1,11 @@
 #!/bin/bash
 
-tmp=$(mktemp -d /tmp/pdfnup-slides-XXXXX)
-[ -z "$tmp" ] && exit 1
+file=$1
 
-# put 2x3 slides (pdf) on one page
-#pdfnup --nup 2x3 --frame true \
-#  --delta "0.5cm 3cm" --offset "0cm 1cm" \
-#  --scale 0.85 \
-#  "$@" \
-#  --outfile "$tmp/1.pdf"
-
-# put 2x2 slides (pdf) on one page
-pdfnup --nup 2x2 --frame true \
+# put 1x2 slides (pdf) on one page
+pdfnup --nup 1x2 \
+  --no-landscape \
   --delta "0.5cm 0.5cm" \
   --scale 0.9 \
   "$@" \
-  --outfile "$tmp/1.pdf"
-
-# scale up to a4 - now works for beamer slides, too.
-# hackhackhack
-cat > "$tmp/2.tex" <<EOF
-\documentclass[a4paper,landscape]{article}
-\usepackage{pdfpages}
-\begin{document}
-\includepdf[pages=-,nup=1x1,frame=false,trim=0 0 0 0,delta=0 0,offset=0 0,scale=1.0,turn=true,noautoscale=false,column=false,columnstrict=false,openright=false]{$tmp/1.pdf}
-\end{document}
-EOF
-pdflatex -output-directory "$tmp" "$tmp/2.tex" 
-mv -v "$tmp/2.pdf" "$1.2x2.pdf"
-
-# cleanup
-rm -f "$tmp"/*.pdf "$tmp"/*.tex "$tmp"/*.aux "$tmp"/*.log
-rmdir "$tmp"
+  --outfile "${1%%.pdf}.nup.pdf"
