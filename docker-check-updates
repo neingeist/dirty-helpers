@@ -1,0 +1,23 @@
+#!/usr/bin/python
+"""Check Docker images for security/distro updates. Assumes DNF."""
+
+from __future__ import division, print_function
+from docker import Client
+import subprocess
+
+c = Client(base_url='unix://var/run/docker.sock')
+for container in c.containers():
+    name = container['Names'][0]
+    id_ = container['Id']
+    image_id = c.inspect_container(id_)['Image']
+
+    print('Container: {}'.format(name))
+    print('Image: {} '.format(image_id))
+
+    # Not using the API here for simplicity (for now)
+    subprocess.call(['docker', 'run', '-t', '--rm',
+                     image_id,
+                     '/bin/bash', '-c',
+
+                     'dnf -q check-update;' +
+                     'if [ $? == 100 ]; then echo "Updates available"; fi'])
