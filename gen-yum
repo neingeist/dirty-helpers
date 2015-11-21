@@ -11,12 +11,23 @@ for base_dir in $BASE_DIRS; do
     if [ -d $YUM ]; then
       echo "== $YUM"
       cd $YUM
+
+      # Check for unsigned RPMs
+      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp'` || true
+      if [ ${#unsigned} != 0 ]; then
+        echo "Unsigned packages:"
+        echo "$unsigned"
+        exit 1
+      fi
+
+      # Create and sign repodata
       createrepo --update --checkts .
       if [     ! -e repodata/repomd.xml.asc \
            -o repodata/repomd.xml.asc -ot repodata/repomd.xml ]; then
         rm -f repodata/repomd.xml.asc
         gpg -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
       fi
+
     fi
   done
 done
