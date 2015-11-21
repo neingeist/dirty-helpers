@@ -1,0 +1,22 @@
+#!/bin/bash
+# Setup YUM/DNF repository
+
+GPG_KEY=F77BB18D
+eval BASE_DIRS=~/www_static/dnf.bl0rg.net/*/*
+
+set -e
+
+for base_dir in $BASE_DIRS; do
+  for YUM in $base_dir/{i386,x86_64}; do
+    if [ -d $YUM ]; then
+      echo "== $YUM"
+      cd $YUM
+      createrepo --update --checkts .
+      if [     ! -e repodata/repomd.xml.asc \
+           -o repodata/repomd.xml.asc -ot repodata/repomd.xml ]; then
+        rm -f repodata/repomd.xml.asc
+        gpg -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
+      fi
+    fi
+  done
+done
