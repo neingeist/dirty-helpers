@@ -71,3 +71,6 @@ length_name  = max(len(name) for name in counts.keys())
 length_count = max(len(str(count)) for count in counts.values())
 for name, count in sorted(counts.items(), key=key, reverse=reverse):
     print('{0:{1}}\t{2:{3}d}'.format(name, length_name, count, length_count))
+
+total = sum(counts.values())
+print('\n{0:{1}}\t{2:{3}d}'.format('Total', length_name, total, length_count))
