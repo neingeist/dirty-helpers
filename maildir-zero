@@ -22,9 +22,9 @@ def maildir_count(maildir):
 
     cur = dir_count(os.path.join(maildir, 'cur'))
     new = dir_count(os.path.join(maildir, 'new'))
-    all_ = cur + new
+    count = cur + new
 
-    return (new, all_)
+    return (new, count)
 
 
 def mailbox_name(maildir, root):
@@ -50,15 +50,15 @@ root = os.path.expanduser('~/Maildir')
 counts = {}
 for maildir in maildirs(root):
     name = mailbox_name(maildir, root)
-    _, all_ = maildir_count(maildir)
+    _, count = maildir_count(maildir)
 
-    if all_ == 0 and ignore_zero:
+    if count == 0 and ignore_zero:
         continue
 
     if any(re.match(i, name) for i in ignore):
         continue
 
-    counts[name] = all_
+    counts[name] = count
 
 if sort_by_count:
     key = lambda i: i[1]
@@ -71,3 +71,6 @@ length_name  = max(len(name) for name in counts.keys())
 length_count = max(len(str(count)) for count in counts.values())
 for name, count in sorted(counts.items(), key=key, reverse=reverse):
     print('{0:{1}}\t{2:{3}d}'.format(name, length_name, count, length_count))
+
+total = sum(counts.values())
+print('\n{0:{1}}\t{2:{3}d}'.format('Total', length_name, total, length_count))
