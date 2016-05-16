@@ -1,0 +1,23 @@
+#!/usr/bin/python
+# Find duplicate keys in ~/.ssh/known_hosts
+#
+# Of course, we should have been more careful in the first place :)
+
+from __future__ import division, print_function
+from collections import defaultdict
+import os.path
+import re
+
+
+hostnames_per_key = defaultdict(list)
+
+with open(os.path.expanduser('~/.ssh/known_hosts')) as f:
+    for line in f:
+        m = re.match('(\S+)\s+(\S+\s+\S+)(.*)?', line)
+        if m:
+            (hostname, key, cruft) = m.groups()
+            hostnames_per_key[key].append(hostname)
+
+for key, hostnames in hostnames_per_key.iteritems():
+    if len(hostnames) > 1:
+        print(hostnames)
