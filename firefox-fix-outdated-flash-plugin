@@ -1,0 +1,5 @@
+#!/bin/sh
+# Fix wrong "Flash outdated" error message by Firefox
+killall firefox
+rm .mozilla/firefox/*.default/pluginreg.dat
+firefox
