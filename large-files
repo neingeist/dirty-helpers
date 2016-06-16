@@ -1,0 +1,8 @@
+#!/bin/sh
+# Find large files on this host
+
+LARGE='+100M'
+WHERE=`mount -t ext2,ext3,ext4,btrfs,ntfs,reiserfs,xfs,zfs | awk '{ print $3 }'`
+IGNORE='^(/var/lib/rpm/Packages|/home/.*/.btsync/.*\.db)$'
+
+sudo find $WHERE -xdev -size $LARGE | grep --line-buffered -Ev "$IGNORE"
