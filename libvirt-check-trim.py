@@ -7,7 +7,7 @@ import libvirt
 import sys
 
 
-conn = libvirt.openReadOnly(None)
+conn = libvirt.openReadOnly('qemu:///system')
 if not conn:
     print('Failed to open connection to the hypervisor!')
     sys.exit(1)
