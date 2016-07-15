@@ -18,6 +18,10 @@ for domain in conn.listAllDomains():
     xml = domain.XMLDesc()
     tree = objectify.fromstring(xml)
 
+    if not hasattr(tree.devices, 'disk'):
+        print('(has no disks)')
+        continue
+
     # every disk should be scsi + discard=unmap
     for disk in tree.devices.disk:
         if disk.get('device') != 'disk':
