@@ -18,6 +18,12 @@ for domain in conn.listAllDomains():
     xml = domain.XMLDesc()
     tree = objectify.fromstring(xml)
 
+    machine = tree.os.type.get('machine')
+    if machine < 'pc-i440fx-2.1':
+        print('machine should be at least pc-i440fx-2.1')
+        # Might want to check qemu-system-x86_64 -M help for supported
+        # machines.
+
     if not hasattr(tree.devices, 'disk'):
         print('(has no disks)')
         continue
