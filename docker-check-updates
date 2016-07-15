@@ -11,6 +11,7 @@ for container in c.containers():
     id_ = container['Id']
     image_id = c.inspect_container(id_)['Image']
 
+    print('-' * 75)
     print('Container: {}'.format(name))
     print('Image: {} '.format(image_id))
 
