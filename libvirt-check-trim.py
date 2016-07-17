@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Check if all libvirt domains are prepared for TRIM/fstrim
 
 from __future__ import division, print_function
