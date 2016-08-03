@@ -13,6 +13,10 @@ if not conn:
     print('Failed to open connection to the hypervisor!')
     sys.exit(1)
 
+if not hasattr(conn, "listAllDomains"):
+    print('connection does not have listAllDomains(), is python-libvirt too old?')
+    sys.exit(1)
+
 for domain in conn.listAllDomains():
     print('== {}'.format(domain.name()))
 
