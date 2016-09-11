@@ -4,7 +4,7 @@
 saubermann-common
 
 echo "== should be installed via RPM or pip install --user:"
-for site_packages in /usr/lib/python2.7/site-packages/; do 
+for site_packages in /usr/lib/python2.7/site-packages/; do
   rpm -qf $site_packages/*.egg-info 2>&1 | grep "not owned"
 done
 
