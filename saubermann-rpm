@@ -1,0 +1,26 @@
+#!/bin/sh
+# check for things not installed via RPM
+
+echo "== should be installed via RPM or pip install --user:"
+for site_packages in /usr/lib/python2.7/site-packages/; do 
+  rpm -qf $site_packages/*.egg-info 2>&1 | grep "not owned"
+done
+
+echo "== /usr/local"
+find /usr/local/ -type f \
+  -and -not -name mimeinfo.cache \
+  -and -not -name defaults.list \
+  -print0 | xargs -0 rpm -qf 2>&1 | grep "not owned"
+
+echo "== /usr/bin etc."
+find /usr/bin /usr/sbin /usr/lib -type f \
+  \( \
+      -path '/usr/lib/modules/*/modules.*' -prune \
+  -or -path '*/__pycache__/*.py?' -prune \
+  -or -print0 \
+  \) | xargs -0 rpm -qf 2>&1 | grep "not owned"
+
+echo "== *.rpmnew etc."
+find /etc/ /usr/ \
+  -path '/usr/share/eclipse/dropins' -prune \
+  -or -name "*.rpm*" -and -not -name "*.rpm"
