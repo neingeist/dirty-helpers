@@ -1,5 +1,7 @@
 #!/bin/sh
-# check for things not installed via dpkg/apt
+# check for things not installed via dpkg/apt and other junk
+
+saubermann-common
 
 echo "== Packages not in installed state"
 dpkg -l | egrep -v "^(ii|Desired|\||\+)"
