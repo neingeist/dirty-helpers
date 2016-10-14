@@ -1,0 +1,3 @@
+#!/bin/sh
+# List XXXs, FIXMEs and TODOs in files
+ag "XXX|FIXME|TODO"
