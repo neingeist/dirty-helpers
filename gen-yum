@@ -31,3 +31,5 @@ for base_dir in $BASE_DIRS; do
     fi
   done
 done
+
+restorecon -Rv $BASE_DIRS
