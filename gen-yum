@@ -28,8 +28,9 @@ for base_dir in $BASE_DIRS; do
         gpg -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
       fi
 
+      # Fix permissions
+      chmod a+r *.rpm
+      restorecon -v *.rpm
     fi
   done
 done
-
-restorecon -Rv $BASE_DIRS
