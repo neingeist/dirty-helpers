@@ -3,8 +3,10 @@
 
 from __future__ import division, print_function
 
+from distutils.version import LooseVersion
 from lxml import objectify
 import libvirt
+import re
 import sys
 
 
@@ -24,9 +26,12 @@ for domain in conn.listAllDomains():
     tree = objectify.fromstring(xml)
 
     machine = tree.os.type.get('machine')
-    if machine < 'pc-i440fx-2.1':
-        print('machine should be at least pc-i440fx-2.1')
-        # Might want to check qemu-system-x86_64 -M help for supported
+    matches = re.match('^pc-(?:i440fx-)?([0-9.]*)', machine)
+    if matches:
+        i440_version = matches.group(1)
+        if LooseVersion(i440_version) < LooseVersion('2.1'):
+            print('machine type (version) should be at least pc-i440fx-2.1')
+        # Might want to check "qemu-system-x86_64 -M help" for supported
         # machines.
 
     if not hasattr(tree.devices, 'disk'):
