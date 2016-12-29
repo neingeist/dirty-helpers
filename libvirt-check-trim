@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Check if all libvirt domains are prepared for TRIM/fstrim
+# (for use on qcow2 images or thin provisioned volumes)
 
 from __future__ import division, print_function
 
