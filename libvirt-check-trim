@@ -26,6 +26,7 @@ for domain in conn.listAllDomains():
     xml = domain.XMLDesc()
     tree = objectify.fromstring(xml)
 
+    # machine type version should be >= 2.1 if i440fx
     machine = tree.os.type.get('machine')
     matches = re.match('^pc-(?:i440fx-)?([0-9.]*)', machine)
     if matches:
@@ -35,6 +36,7 @@ for domain in conn.listAllDomains():
         # Might want to check "qemu-system-x86_64 -M help" for supported
         # machines.
 
+    # no disks, no need to check
     if not hasattr(tree.devices, 'disk'):
         print('(has no disks)')
         continue
