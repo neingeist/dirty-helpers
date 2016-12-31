@@ -1,0 +1,40 @@
+#!/usr/bin/python2
+# Check Java versions against the newest one installed
+#
+# This assumes that there's OpenJDK installed and kept up to date.
+
+from __future__ import division, print_function
+from distutils.version import LooseVersion
+from subprocess import check_output
+import re
+
+
+def is_java(package):
+    filelist = check_output(['rpm', '-ql', package])
+    return re.search(r'bin/java$', filelist, re.MULTILINE)
+
+
+def package_version(package):
+    version_query = ['rpm', '--queryformat', '%{VERSION}', '-q']
+    version_query.append(package)
+
+    version = check_output(version_query)
+
+    version = re.sub('_', '.', version)
+    return version
+
+
+def java_packages():
+    all_packages = check_output(['rpm', '-qa']).split('\n')
+    packages = [package
+                for package in all_packages
+                if re.search(r'jdk|jre', package)]
+    return [package for package in packages if is_java(package)]
+
+
+versions = [LooseVersion(package_version(package))
+            for package in java_packages()]
+wanted_version = max(versions)
+old_versions = [version for version in versions if version < wanted_version]
+
+print('Too old:', old_versions)
