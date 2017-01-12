@@ -1,0 +1,9 @@
+#!/bin/bash
+# list all redhat/networkmanager connections without ipv6 privacy
+set -e
+cd /etc/sysconfig/network-scripts
+for c in ifcfg-*; do
+  if ! grep -q IPV6_PRIVACY=rfc3041 $c; then
+    echo $c
+  fi
+done
