@@ -25,7 +25,7 @@ for base_dir in $BASE_DIRS; do
       if [     ! -e repodata/repomd.xml.asc \
            -o repodata/repomd.xml.asc -ot repodata/repomd.xml ]; then
         rm -f repodata/repomd.xml.asc
-        gpg -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
+        gpg2 -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
       fi
 
       # Fix permissions
