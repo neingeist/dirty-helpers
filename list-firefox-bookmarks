@@ -1,0 +1,6 @@
+#!/bin/sh
+# List Firefox bookmarks
+places=~/.mozilla/firefox/*default*/places.sqlite
+
+# tags are parents with their parent = 4, so these have to be filtered
+sqlite3 $places "select pl.url, b.title from moz_bookmarks as b join moz_bookmarks as pa on b.parent=pa.id join moz_places as pl on b.fk=pl.id where pa.parent != 4"
