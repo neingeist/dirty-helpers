@@ -12,6 +12,10 @@ for base_dir in $BASE_DIRS; do
       echo "== $YUM"
       cd $YUM
 
+      # Fix permissions
+      chmod a+r *.rpm
+      chcon -t svirt_sandbox_file_t *.rpm
+
       # Check for unsigned RPMs
       unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp'` || true
       if [ ${#unsigned} != 0 ]; then
@@ -28,9 +32,6 @@ for base_dir in $BASE_DIRS; do
         gpg2 -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
       fi
 
-      # Fix permissions
-      chmod a+r *.rpm
-      restorecon -v *.rpm
     fi
   done
 done
