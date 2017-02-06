@@ -3,6 +3,10 @@
 set -e
 cd /etc/sysconfig/network-scripts
 for c in ifcfg-*; do
+  if [ "$c" == "ifcfg-lo" ]; then
+    continue
+  fi
+
   if ! grep -q IPV6_PRIVACY=rfc3041 $c; then
     echo $c
   fi
