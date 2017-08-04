@@ -16,12 +16,12 @@ for base_dir in $BASE_DIRS; do
       chmod a+r *.rpm
       chcon -t svirt_sandbox_file_t *.rpm
 
-      # Check for unsigned RPMs
-      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp'` || true
+      # Sign unsigned RPMs
+      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp' | sed 's#:.*##'` || true
       if [ ${#unsigned} != 0 ]; then
         echo "Unsigned packages:"
         echo "$unsigned"
-        exit 1
+        rpmsign --addsign $unsigned
       fi
 
       # Create and sign repodata
