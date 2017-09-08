@@ -15,6 +15,8 @@ import subprocess
 
 def git_directories(startdir):
     for dirpath, dirnames, _ in os.walk(startdir):
+        if '.sync' in dirpath:
+            continue
         if set(['info', 'objects', 'refs']).issubset(set(dirnames)):
             yield dirpath
 
