@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+"""Find files starting with null bytes"""
+
+from __future__ import division, print_function
+import argparse
+import os
+
+
+parser = argparse.ArgumentParser(
+    description='Find files starting with null bytes')
+parser.add_argument(
+    'directories', metavar='dir', default=['.'], nargs='*',
+    type=str, help='directory to be searched')
+parser.add_argument(
+    '-n', dest='nullbytes', default=16,
+    type=int, help='number of null bytes')
+args = parser.parse_args()
+
+
+for directory in args.directories:
+    for dirpath, _, filenames in os.walk(directory):
+        for filename in filenames:
+            filename = os.path.join(dirpath, filename)
+
+            if not os.path.isfile(filename):
+                continue
+
+            with open(filename, 'rb') as f:
+                firstbytes = f.read(args.nullbytes)
+                if firstbytes == b'\0'*args.nullbytes:
+                    print(filename)
