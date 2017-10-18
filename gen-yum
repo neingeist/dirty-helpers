@@ -7,6 +7,7 @@ eval BASE_DIRS=~/www_static/dnf.bl0rg.net/*/*
 set -e
 
 for base_dir in $BASE_DIRS; do
+  restorecon -Rv $base_dir
   for YUM in $base_dir/{SRPMS,i386,x86_64}; do
     if [ -d $YUM ]; then
       echo "== $YUM"
