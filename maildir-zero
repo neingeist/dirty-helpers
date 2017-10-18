@@ -67,8 +67,15 @@ else:
     key = lambda i: i[0]
     reverse = False
 
-length_name  = max(len(name) for name in counts.keys())
-length_count = max(len(str(count)) for count in counts.values())
+try:
+    length_name = max(len(name) for name in counts.keys())
+except:
+    length_name = len('Total')
+try:
+    length_count = max(len(str(count)) for count in counts.values())
+except:
+    length_count = 3
+
 for name, count in sorted(counts.items(), key=key, reverse=reverse):
     print('{0:{1}}\t{2:{3}d}'.format(name, length_name, count, length_count))
 

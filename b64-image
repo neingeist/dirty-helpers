@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+# Convert an image to CSS/HTML base64 foo
+
+from __future__ import division, print_function
+import base64
+import magic
+import sys
+
+if not hasattr(magic, "from_file"):
+    print("wrong magic module installed? try pip install python-magic")
+    sys.exit(1)
+
+
+if len(sys.argv[1:]) == 0:
+    print("Usage: " + sys.argv[0] + " IMAGE.PNG ...")
+    sys.exit(1)
+
+for filename in sys.argv[1:]:
+    mimetype = magic.from_file(filename, mime=True)
+    with open(filename, "rb") as f:
+        encoded = base64.b64encode(f.read())
+    print("url(data:{};base64,{})".format(mimetype, encoded))

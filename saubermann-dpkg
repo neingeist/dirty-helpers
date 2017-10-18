@@ -1,0 +1,16 @@
+#!/bin/sh
+# check for things not installed via dpkg/apt and other junk
+
+saubermann-common
+
+echo "== Packages not in installed state"
+dpkg -l | egrep -v "^(ii|Desired|\||\+)"
+
+echo "== Orphan packages"
+deborphan | egrep -v 'libc6-i686|lib.*-ruby$|opensync|gstreamer0.10-plugins.*|libtime-modules-perl|vpim|gnome-session-fallback|.*-globalmenu|gcalctool|clive|unity-scope'
+
+echo "== *.dpkg in /etc"
+find /etc -name "*.dpkg-*" -or -name "*.ucf-*"
+
+echo "== Orphan packages according to aptitude"
+aptitude search "~o"

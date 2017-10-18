@@ -1,9 +1,13 @@
+#!/usr/bin/python
 # Check if all libvirt domains are prepared for TRIM/fstrim
+# (for use on qcow2 images or thin provisioned volumes)
 
 from __future__ import division, print_function
 
+from distutils.version import LooseVersion
 from lxml import objectify
 import libvirt
+import re
 import sys
 
 
@@ -12,18 +16,27 @@ if not conn:
     print('Failed to open connection to the hypervisor!')
     sys.exit(1)
 
+if not hasattr(conn, "listAllDomains"):
+    print('connection does not have listAllDomains(), is python-libvirt too old?')
+    sys.exit(1)
+
 for domain in conn.listAllDomains():
     print('== {}'.format(domain.name()))
 
     xml = domain.XMLDesc()
     tree = objectify.fromstring(xml)
 
+    # machine type version should be >= 2.1 if i440fx
     machine = tree.os.type.get('machine')
-    if machine < 'pc-i440fx-2.1':
-        print('machine should be at least pc-i440fx-2.1')
-        # Might want to check qemu-system-x86_64 -M help for supported
+    matches = re.match('^pc-(?:i440fx-)?([0-9.]*)', machine)
+    if matches:
+        i440_version = matches.group(1)
+        if LooseVersion(i440_version) < LooseVersion('2.1'):
+            print('machine type (version) should be at least pc-i440fx-2.1')
+        # Might want to check "qemu-system-x86_64 -M help" for supported
         # machines.
 
+    # no disks, no need to check
     if not hasattr(tree.devices, 'disk'):
         print('(has no disks)')
         continue

@@ -13,12 +13,16 @@ for base_dir in $BASE_DIRS; do
       echo "== $YUM"
       cd $YUM
 
-      # Check for unsigned RPMs
-      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp'` || true
+      # Fix permissions
+      chmod a+r *.rpm
+      chcon -t svirt_sandbox_file_t *.rpm
+
+      # Sign unsigned RPMs
+      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp' | sed 's#:.*##'` || true
       if [ ${#unsigned} != 0 ]; then
         echo "Unsigned packages:"
         echo "$unsigned"
-        exit 1
+        rpmsign --addsign $unsigned
       fi
 
       # Create and sign repodata
@@ -26,7 +30,7 @@ for base_dir in $BASE_DIRS; do
       if [     ! -e repodata/repomd.xml.asc \
            -o repodata/repomd.xml.asc -ot repodata/repomd.xml ]; then
         rm -f repodata/repomd.xml.asc
-        gpg -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
+        gpg2 -u $GPG_KEY --detach-sign --armor repodata/repomd.xml
       fi
 
     fi

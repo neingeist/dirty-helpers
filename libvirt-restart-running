@@ -1,0 +1,19 @@
+#!/usr/bin/python
+# Restart all running libvirt domains
+
+from __future__ import division, print_function
+
+import libvirt
+import sys
+
+conn = libvirt.open('qemu:///system')
+if not conn:
+    print('Failed to open connection to the hypervisor!')
+    sys.exit(1)
+
+for domain in conn.listAllDomains():
+    name = domain.name()
+    if domain.isActive():
+        print('Restarting {}...'.format(name))
+        domain.destroyFlags(flags=libvirt.VIR_DOMAIN_DESTROY_GRACEFUL)
+        domain.create()
