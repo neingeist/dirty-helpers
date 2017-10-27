@@ -2,10 +2,10 @@
 """Check Docker images for security/distro updates. Assumes DNF."""
 
 from __future__ import division, print_function
-from docker import Client
+import docker
 import subprocess
 
-c = Client(base_url='unix://var/run/docker.sock')
+c = docker.APIClient(base_url='unix://var/run/docker.sock')
 for container in c.containers():
     name = container['Names'][0]
     id_ = container['Id']
