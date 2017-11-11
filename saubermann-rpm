@@ -19,6 +19,9 @@ find /usr/bin /usr/sbin /usr/lib -type f \
   \( \
       -path '/usr/lib/modules/*/modules.*' -prune \
   -or -path '*/__pycache__/*.py?' -prune \
+  -or -path '/usr/lib/fontconfig/cache/*' -prune \
+  -or -path '/usr/lib/jvm/*/*policy.jar' -prune \
+  -or -path '/usr/lib/modules/*/extra/*.ko' -prune \
   -or -print0 \
   \) | xargs -0 rpm -qf 2>&1 | grep "not owned"
 
