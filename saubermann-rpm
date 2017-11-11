@@ -26,3 +26,6 @@ echo "== *.rpmnew etc."
 find /etc/ /usr/ \
   -path '/usr/share/eclipse/dropins' -prune \
   -or -name "*.rpm*" -and -not -name "*.rpm"
+
+echo "== Orphan packages according to dnf"
+dnf repoquery --extras
