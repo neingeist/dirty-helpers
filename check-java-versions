@@ -37,4 +37,5 @@ versions = [LooseVersion(package_version(package))
 wanted_version = max(versions)
 old_versions = [version for version in versions if version < wanted_version]
 
-print('Too old:', old_versions)
+print('Wanted:', str(wanted_version))
+print('Too old:', [str(version) for version in old_versions])
