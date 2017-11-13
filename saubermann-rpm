@@ -1,7 +1,7 @@
 #!/bin/sh
 # check for things not installed via RPM and other junk
 
-saubermann-common
+`dirname $0`/saubermann-common
 
 echo "== should be installed via RPM or pip install --user:"
 for site_packages in /usr/lib/python*/site-packages/; do
