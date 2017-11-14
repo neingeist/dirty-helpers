@@ -12,7 +12,7 @@ is_fedora() {
 
 
 echo "== Dangling symlinks in /etc"
-symlinks -r /etc | grep ^dangling | egrep -v 'blkid.tab|/var/log/dropbear'
+find /etc -type l -and -xtype l | egrep -v 'blkid.tab|/var/log/dropbear'
 
 echo "== Trashes"
 du -s /home/*/.local/share/Trash | awk '{ if ($1 > 100000) { print } }'
