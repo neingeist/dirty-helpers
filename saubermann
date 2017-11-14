@@ -1,0 +1,68 @@
+#!/bin/sh
+# check for common problems + junk
+
+
+is_debian() {
+  test -f /etc/debian_version
+}
+
+is_fedora() {
+  test -f /etc/fedora-release
+}
+
+
+echo "== Dangling symlinks in /etc"
+symlinks -r /etc | grep ^dangling | egrep -v 'blkid.tab|/var/log/dropbear'
+
+echo "== Trashes"
+du -s /home/*/.local/share/Trash | awk '{ if ($1 > 100000) { print } }'
+
+if is_debian; then
+  # check for things not installed via dpkg/apt and other junk
+
+  echo "== Packages not in installed state"
+  dpkg -l | egrep -v "^(ii|Desired|\||\+)"
+
+  echo "== Orphan packages"
+  deborphan | egrep -v 'libc6-i686|lib.*-ruby$|opensync|gstreamer0.10-plugins.*|libtime-modules-perl|vpim|gnome-session-fallback|.*-globalmenu|gcalctool|clive|unity-scope'
+
+  echo "== *.dpkg in /etc"
+  find /etc -name "*.dpkg-*" -or -name "*.ucf-*"
+
+  echo "== Orphan packages according to aptitude"
+  aptitude search "~o"
+
+elif is_fedora; then
+  # check for things not installed via RPM and other junk
+
+  echo "== should be installed via RPM or pip install --user:"
+  for site_packages in /usr/lib/python*/site-packages/; do
+    find $site_packages \( -name "*.egg-info" -or -name "*.dist-info" \) -exec rpm -qf {} \; 2>&1 | grep "not owned"
+  done
+
+  echo "== /usr/local"
+  find /usr/local/ -type f \
+    -and -not -name mimeinfo.cache \
+    -and -not -name defaults.list \
+    -print0 | xargs -0 rpm -qf 2>&1 | grep "not owned"
+
+  echo "== /usr/bin etc."
+  find /usr/bin /usr/sbin /usr/lib -type f \
+    \( \
+        -path '/usr/lib/modules/*/modules.*' -prune \
+    -or -path '*/__pycache__/*.py?' -prune \
+    -or -path '/usr/lib/fontconfig/cache/*' -prune \
+    -or -path '/usr/lib/jvm/*/*policy.jar' -prune \
+    -or -path '/usr/lib/modules/*/extra/*.ko' -prune \
+    -or -path '/usr/lib/dracut/*/block*.map' -prune \
+    -or -print0 \
+    \) | xargs -0 rpm -qf 2>&1 | grep "not owned"
+
+  echo "== *.rpmnew etc."
+  find /etc/ /usr/ \
+    -path '/usr/share/eclipse/dropins' -prune \
+    -or -name "*.rpm*" -and -not -name "*.rpm"
+
+  echo "== Orphan packages according to dnf"
+  dnf -q repoquery --extras
+fi

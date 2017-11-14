@@ -1,8 +1,0 @@
-#!/bin/sh
-# check for common problems + junk
-
-echo "== Dangling symlinks in /etc"
-symlinks -r /etc | grep ^dangling | egrep -v 'blkid.tab|/var/log/dropbear'
-
-echo "== Trashes"
-du -s /home/*/.local/share/Trash | awk '{ if ($1 > 100000) { print } }'
