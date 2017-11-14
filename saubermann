@@ -34,7 +34,7 @@ if is_debian; then
   find /etc -name "*.dpkg-*" -or -name "*.ucf-*"
 
   echo "== Orphan packages according to aptitude"
-  aptitude search "~o"
+  aptitude search "~o" || exit 0
 
 elif is_fedora; then
   # check for things not installed via RPM and other junk
