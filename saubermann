@@ -15,7 +15,11 @@ echo "== Dangling symlinks in /etc"
 find /etc -type l -and -xtype l | egrep -v 'blkid.tab|/var/log/dropbear'
 
 echo "== Trashes"
-du -s /home/*/.local/share/Trash | awk '{ if ($1 > 100000) { print } }'
+for t in /home/*/.local/share/Trash; do
+  if test -e "$t"; then
+    du -s "$t" | awk '{ if ($1 > 100000) { print } }'
+  fi
+done
 
 if is_debian; then
   # check for things not installed via dpkg/apt and other junk
