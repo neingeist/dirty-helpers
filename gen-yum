@@ -18,7 +18,7 @@ for base_dir in $BASE_DIRS; do
       chcon -t svirt_sandbox_file_t *.rpm
 
       # Sign unsigned RPMs
-      unsigned=`rpm --checksig *.rpm | egrep -v ': .*pgp' | sed 's#:.*##'` || true
+      unsigned=`rpm --checksig *.rpm | egrep -v ': .*(pgp|signatures OK)' | sed 's#:.*##'` || true
       if [ ${#unsigned} != 0 ]; then
         echo "Unsigned packages:"
         echo "$unsigned"
