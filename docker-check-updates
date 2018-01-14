@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """Check Docker images for security/distro updates. Assumes DNF."""
 
 from __future__ import division, print_function
@@ -16,9 +16,12 @@ for container in c.containers():
     print('Image: {} '.format(image_id))
 
     # Not using the API here for simplicity (for now)
-    subprocess.call(['docker', 'run', '-t', '--rm',
-                     image_id,
-                     '/bin/bash', '-c',
+    output = subprocess.check_output([
+        'docker', 'run', '-t', '--rm',
+        image_id,
+        '/bin/bash', '-c',
 
-                     'dnf -q check-update;' +
-                     'if [ $? == 100 ]; then echo "Updates available"; fi'])
+        'dnf -q check-update;' +
+        'if [ $? == 100 ]; then echo "Updates available"; fi'
+    ])
+    print(output.decode())
