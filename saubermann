@@ -70,3 +70,5 @@ elif is_fedora; then
   echo "== Orphan packages according to dnf"
   dnf -q repoquery --extras | grep -v '^kernel-'
 fi
+
+exit 0
