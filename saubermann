@@ -68,5 +68,5 @@ elif is_fedora; then
     -or -name "*.rpm*" -and -not -name "*.rpm"
 
   echo "== Orphan packages according to dnf"
-  dnf -q repoquery --extras
+  dnf -q repoquery --extras | grep -v '^kernel-'
 fi
