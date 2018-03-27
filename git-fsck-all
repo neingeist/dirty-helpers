@@ -31,8 +31,9 @@ def working_directory(directory):
 
 for git_directory in git_directories('.'):
     with working_directory(git_directory):
-        print('\n{}:'.format(os.getcwd()))
-        ret = subprocess.call(['git', 'fsck', '--no-dangling'])
-        if ret != 0:
+        try:
+            subprocess.check_output(['git', 'fsck', '--no-dangling'], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
             print((Fore.RED + 'git fsck is unhappy with {}' + Fore.RESET)
                   .format(git_directory))
+            print(e.output)
