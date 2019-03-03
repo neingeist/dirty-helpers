@@ -7,15 +7,14 @@ eval BASE_DIRS=~/www_static/dnf.bl0rg.net/*/*
 set -e
 
 for base_dir in $BASE_DIRS; do
-  restorecon -Rv $base_dir
+  # Fix permissions
+  chcon -t container_file_t -R $base_dir
+  chmod -R a+r $base_dir
+
   for YUM in $base_dir/{SRPMS,i386,x86_64}; do
     if [ -d $YUM ]; then
       echo "== $YUM"
       cd $YUM
-
-      # Fix permissions
-      chmod a+r *.rpm
-      chcon -t svirt_sandbox_file_t *.rpm
 
       # Sign unsigned RPMs
       unsigned=`rpm --checksig *.rpm | egrep -v ': .*(pgp|signatures OK)' | sed 's#:.*##'` || true
