@@ -47,6 +47,9 @@ def main():
             for f in filenames]
 
     for file1 in file_list:
+        if file1.endswith('.lock') or '.sync/' in file1:
+            continue
+
         if file1 in seen:
             continue
 
