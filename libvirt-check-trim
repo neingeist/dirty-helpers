@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Check if all libvirt domains are prepared for TRIM/fstrim
 # (for use on qcow2 images or thin provisioned volumes)
 
