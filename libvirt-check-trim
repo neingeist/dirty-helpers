@@ -28,7 +28,7 @@ for domain in conn.listAllDomains():
 
     # machine type version should be >= 2.1 if i440fx
     machine = tree.os.type.get('machine')
-    matches = re.match('^pc-(?:i440fx-)?([0-9.]*)', machine)
+    matches = re.match('^pc-(?:i440fx-)?([0-9.]+)', machine)
     if matches:
         i440_version = matches.group(1)
         if LooseVersion(i440_version) < LooseVersion('2.1'):
