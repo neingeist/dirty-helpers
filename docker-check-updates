@@ -19,9 +19,11 @@ for container in c.containers():
     output = subprocess.check_output([
         'docker', 'run', '-t', '--rm',
         image_id,
-        '/bin/bash', '-c',
+        '/bin/sh', '-c',
 
-        'dnf -q check-update;' +
-        'if [ $? == 100 ]; then echo "Updates available"; fi'
+        # Note the semicolons and the string concatenation here!
+        'if [ ! -x /usr/bin/dnf ]; then echo "dnf not available"; exit 0; fi;' +
+        '/usr/bin/dnf -q check-update;' +
+        'if [ $? == 100 ]; then echo "Updates available"; fi;'
     ])
     print(output.decode())
