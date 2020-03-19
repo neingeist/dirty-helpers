@@ -18,6 +18,6 @@ with open(os.path.expanduser('~/.ssh/known_hosts')) as f:
             (hostname, key, cruft) = m.groups()
             hostnames_per_key[key].append(hostname)
 
-for key, hostnames in hostnames_per_key.iteritems():
+for key, hostnames in hostnames_per_key.items():
     if len(hostnames) > 1:
         print(hostnames)
