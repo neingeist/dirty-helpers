@@ -3,6 +3,6 @@
 
 LARGE=${1:-100M}
 WHERE=`mount -t ext2,ext3,ext4,btrfs,ntfs,reiserfs,xfs,zfs | awk '{ print $3 }'`
-IGNORE='^(/var/lib/rpm/Packages|/home/.*/.btsync/.*\.db.*|.*/objects/pack/pack-.*\.pack|.*/\.recoll/xapiandb/.*\.DB)$'
+IGNORE='^(/var/lib/rpm/Packages|/home/.*/.btsync/.*\.db.*|.*/objects/pack/pack-.*\.pack|.*/\.recoll/xapiandb/.*\.DB|/run/media/.*)$'
 
 sudo find $WHERE -xdev -size +$LARGE | grep --line-buffered -Ev "$IGNORE"
