@@ -1,13 +1,42 @@
-#!/bin/sh
-# Show dirty git repos
+#!/usr/bin/env python
+"""show dirty git repos"""
 
-for d in */; do
-  (
-    cd $d
-    status=`git status -s 2>/dev/null`
-    if [ $? -ne 0 -o -n "$status" ]; then
-      echo "== $d"
-      git status -s
-    fi
-  )
-done
+from __future__ import division, print_function
+
+from colorama import Fore
+
+import contextlib
+import os
+import subprocess
+
+
+def git_directories(startdir):
+    for dirpath, dirnames, _ in os.walk(startdir):
+        if '.sync' in dirpath:
+            continue
+        if '.git/modules' in dirpath:
+            # FIXME
+            continue
+        if set(['info', 'objects', 'refs']).issubset(set(dirnames)):
+            yield dirpath
+
+
+@contextlib.contextmanager
+def working_directory(directory):
+    saved_cwd = os.getcwd()
+    os.chdir(directory)
+    yield
+    os.chdir(saved_cwd)
+
+
+for git_directory in git_directories('.'):
+    work_tree_directory = git_directory[:-4]
+    with working_directory(work_tree_directory):
+        try:
+            out = subprocess.check_output(['git', 'status', '-s'], stderr=subprocess.STDOUT)
+            if len(out) > 0:
+                print('== {}\n{}'.format(work_tree_directory, out.decode('utf-8')))
+        except subprocess.CalledProcessError as e:
+            print((Fore.RED + 'git status is unhappy with {}' + Fore.RESET)
+                  .format(work_tree_directory))
+            print(e.output)
