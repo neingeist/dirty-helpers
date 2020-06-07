@@ -1,0 +1,7 @@
+#!/bin/sh
+# Give a random integer between 1 and $1 inclusive
+
+min=1
+max=${1:-10}
+rand=$((RANDOM % (max-min+1) + min))
+echo "$rand"
