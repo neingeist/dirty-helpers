@@ -1,0 +1,118 @@
+#!/bin/bash
+# Poor boy's debfoster for dnf
+
+OK_LEAVES=(
+  ^traceroute-
+  ^tree-
+  ^virt-install-
+  ^virt-manager-
+  ^telnet-
+  ^vlc-
+  ^xfce
+  ^stow-
+  ^stress-
+  ^udica-
+  ^tesseract-
+  ^task-
+  ^subversion-
+  ^sudo-
+  ^symlinks-
+  ^xorg-x11-
+  ^sssd-
+  ^system-config-
+  ^usb_modeswitch
+  ^texlive-
+  ^.*-firmware-
+  ^xmlstarlet-
+  ^wireshark-
+  ^words-
+  ^yum-
+  ^zotero-
+  ^zsh-
+  ^zerofree-
+  ^qemu-\(guest\|kvm\)-
+  ^rpmfusion-
+  ^kernel-
+  ^kmod-
+  ^wvdial-
+  ^ffsend-
+  ^grub2-
+  ^iotop-
+  ^gimp-
+  ^gedit-
+  ^gdb-
+  ^firefox-
+  ^vconfig-
+  ^rsync-
+  ^rng-tools-
+  ^readline-
+  ^samba-client-
+  ^python3-\(flake8\|pip\|virtualenvwrapper\)-
+  ^man-pages-
+  ^mc-
+  ^logrotate-
+  ^lynx-
+  ^mcelog-
+  ^memtest86.-
+  ^tmux-
+  ^setroubleshoot-
+  ^scl-utils-
+  ^hdparm-
+  ^go-rpm-macros-
+  ^htop-
+  ^inkscape-
+  ^arandr-
+  ^vim-\(minimal\|enhanced\)-
+  ^thunar-
+  ^okular-
+  ^conky-
+  ^cowsay-
+  ^cryptsetup-
+  ^eog-
+  ^etckeeper-
+  ^evince-
+  ^emoji-picker-
+  ^exif-
+  ^fdupes-
+  ^cronie-
+  ^chromium-
+  ^abrt-
+  ^akmod-nvidia-
+  ^anki-
+  ^ansible-
+  ^at-
+  ^rp-pppoe-
+  ^systemd-
+  ^python3-dnf-plugin-
+  ^pycharm-
+  ^pwgen-
+  ^smartmontools-
+  ^util-linux-
+  ^xfwm4-
+  ^xscreensaver-
+  ^the_silver_searcher-
+  ^xsel-
+  ^pinfo-
+  ^podman-
+  ^moreutils-
+  ^linux-atm-
+  ^mplayer-
+  ^liferea-
+  ^nmap-
+  ^pandoc-
+  ^minicom-
+  ^openssh-
+  ^pidgin-
+  ^gajim-
+  ^rootfiles-
+  ^tcpdump-
+  ^tpm2-
+)
+
+function join_by {
+  local IFS="$1"
+  shift
+  echo "$*"
+}
+
+dnf leaves | egrep -v `join_by '|' "${OK_LEAVES[@]}"`
