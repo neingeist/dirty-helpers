@@ -107,6 +107,24 @@ OK_LEAVES=(
   ^rootfiles-
   ^tcpdump-
   ^tpm2-
+  ^mtr-
+  ^lightdm-
+  ^mlocate-
+  ^irqbalance-
+  ^sbc-
+  ^dtrx-
+  ^earlyoom-
+  ^vino-
+  ^NetworkManager-
+  ^ICAClient-
+  ^autojump-
+  ^bitstream-vera
+  ^git-annex
+  ^ImageMagick-
+  ^aajohan-comfortaa-fonts
+  ^python3-ipython
+  ^python36
+  ^python3-coverage
 )
 
 function join_by {
