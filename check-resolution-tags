@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Check media file names for resolution tags (.720p. etc.)"""
+
+from pymediainfo import MediaInfo
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Check media file names for resolution tags')
+parser.add_argument('filename', nargs='+', help='media file name(s)')
+args = parser.parse_args()
+
+
+for fn in args.filename:
+    try:
+        media_info = MediaInfo.parse(fn)
+        tracks = (track for track in media_info.tracks if track.track_type == 'Video')
+        for track in tracks:
+            if track.height in [720, 1080, 2160]:
+                desired_tag = '.%dp.' % track.height
+            elif track.width == 1280 and 576 < track.height <= 720:
+                desired_tag = '.%dp.' % 720
+            elif track.width == 1920 and 720 < track.height <= 1080:
+                desired_tag = '.%dp.' % 1080
+            elif track.height > 576:
+                print('{} has strange dimensions of {}x{}'.format(fn, track.width, track.height))
+                continue
+            else:
+                continue
+
+            if desired_tag not in fn:
+                print('{} should have "{}" resolution tag'.format(fn, desired_tag))
+    except FileNotFoundError as e:
+        print("File not found: {}".format(fn))
+
+# vim:tw=120:
