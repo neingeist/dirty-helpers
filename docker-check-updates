@@ -9,10 +9,10 @@ c = docker.APIClient(base_url='unix://var/run/docker.sock')
 for container in c.containers():
     name = container['Names'][0]
     id_ = container['Id']
-    image_id = c.inspect_container(id_)['Image']
-
     print('-' * 75)
     print('Container: {}'.format(name))
+
+    image_id = c.inspect_container(id_)['Image']
     print('Image: {} '.format(image_id))
 
     # Not using the API here for simplicity (for now)
