@@ -1,0 +1,9 @@
+#!/bin/sh
+# Prune old apt-dater history
+MTIME=+365
+
+find ~/.local/share/apt-dater/history -name meta -mtime $MTIME -exec dirname {} \; | while read history_dir; do
+  # We are too squeamish to just use rm -rf
+  rm -f "$history_dir"/{command,meta,timingfile,typescript,failed}
+  rmdir "$history_dir"
+done
